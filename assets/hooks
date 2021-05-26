@@ -1,0 +1,9 @@
+udev
+core
+memdisk
+initiso
+initiso_loop_mnt
+initiso_pxe_common
+initiso_pxe_nbd
+initiso_pxe_http
+initiso_pxe_nfs
