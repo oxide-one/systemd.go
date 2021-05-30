@@ -51,6 +51,9 @@ type TerminalSettings struct {
 
 	// The padding between Address lines
 	AddressPaddingX int
+
+	// Total Attempts
+	TotalAttempts int
 }
 
 type Block struct {
@@ -75,6 +78,7 @@ type Line struct {
 	// Each line contains multiple sets of strings
 	Content  []String
 	Position MultiCoordinates
+	Length   int
 }
 
 type String struct {

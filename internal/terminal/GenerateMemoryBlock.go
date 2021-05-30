@@ -175,10 +175,12 @@ func GenerateMemoryBlock(terminal Terminal, passwordList []string) []Block {
 
 				// Save back
 				lineInMemoryBlock.Content[i] = currentStringInLine
+				lineInMemoryBlock.Length = len(lineInMemoryBlock.Content)
 			}
 
 			// Writeback the content of the current line
 			memoryBlock.Content[line] = lineInMemoryBlock
+
 		}
 		// Writeback the content of the current block
 		memoryBlocks[column] = memoryBlock

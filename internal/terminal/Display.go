@@ -27,6 +27,10 @@ func emitStr(s tcell.Screen, x, y int, style tcell.Style, str string) {
 
 }
 
+func refreshSelection(s tcell.Screen, cell String, style tcell.Style) {
+	emitStr(s, cell.Position.Start.X, cell.Position.Start.Y, style, cell.Content)
+}
+
 func displayHeader(terminal Terminal, s tcell.Screen) {
 	//position := terminal.Header.Position
 	content := terminal.Header.Content
@@ -40,7 +44,7 @@ func displayHeader(terminal Terminal, s tcell.Screen) {
 }
 
 func displayBlocks(terminal Terminal, s tcell.Screen) {
-	// Display the header
+	// Display the blocks
 	addressBlocks := terminal.AddressBlocks
 	memoryBlocks := terminal.MemoryBlocks
 	for column := 0; column < terminal.Settings.Columns; column++ {
@@ -57,8 +61,9 @@ func displayBlocks(terminal Terminal, s tcell.Screen) {
 			memoryLine := memoryBlock.Content[line]
 			for stringSet := range memoryLine.Content {
 				myString := memoryLine.Content[stringSet]
-				myStringPosition := myString.Position
-				emitStr(s, myStringPosition.Start.X, myStringPosition.Start.Y, tcell.StyleDefault, myString.Content)
+				//myStringPosition := myString.Position
+				refreshSelection(s, myString, terminal.Style.Default)
+				//emitStr(s, myStringPosition.Start.X, myStringPosition.Start.Y, tcell.StyleDefault, myString.Content)
 			}
 		}
 	}
@@ -80,32 +85,38 @@ func Display(terminal Terminal) {
 	}
 
 	s.SetStyle(terminal.Style.Default)
-
+	cursor := Cursor{}
+	cursor.Init(terminal)
 	encoding.Register()
-	displayHeader(terminal, s)
+
 	for {
 		switch ev := s.PollEvent().(type) {
 		case *tcell.EventResize:
 			s.Sync()
+			displayHeader(terminal, s)
 			displayBlocks(terminal, s)
+			cursor.display(terminal, s, true)
 		case *tcell.EventKey:
 
 			if ev.Key() == tcell.KeyEscape {
 				s.Fini()
 				os.Exit(0)
 			}
-			// //refreshSelection(s, terminal, false)
-			// switch ev.Key() {
+			//refreshSelection(s, terminal, false)
+			switch ev.Key() {
 
-			// case tcell.KeyUp:
-			// 	terminal = moveUp(terminal)
-			// case tcell.KeyDown:
-			// 	terminal = moveDown(terminal)
-			// case tcell.KeyRight:
-			// 	terminal = moveRight(terminal)
-			// case tcell.KeyLeft:
-			// 	terminal = moveLeft(terminal)
-			// }
+			case tcell.KeyUp:
+				terminal.Cursor.moveUp(terminal, s)
+			case tcell.KeyDown:
+				terminal.Cursor.moveDown(terminal, s)
+			case tcell.KeyRight:
+				terminal.Cursor.moveRight(terminal, s)
+			case tcell.KeyLeft:
+				terminal.Cursor.moveLeft(terminal, s)
+			case tcell.KeyEnter:
+
+				//terminal.attemptBox.flash(termi)
+			}
 
 			//emitStr(s, 70, 0, defStyle, fmt.Sprintf("LINE: %d, LINEPOS: %d, CURXSTART: %d, CURXEND %d, CURY %d, FINALX %d, FINALY %d", cursor.line, cursor.linePos, cursor.curXStart, cursor.curXEnd, cursor.curY, cursor.finalX, cursor.finalY))
 			//emitStr(s, 0, 0, defStyle, "")

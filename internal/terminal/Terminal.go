@@ -19,6 +19,12 @@ type Terminal struct {
 
 	// A and dict list of Passwords
 	Passwords PassStruct
+
+	// The attempts box
+	AttemptBox
+
+	// The cursor
+	Cursor
 }
 
 func DefaultSettings() TerminalSettings {
@@ -58,16 +64,23 @@ func NewTerminal(settings TerminalSettings) Terminal {
 		"ENTER PASSWORD NOW",
 		"",
 		"4 ATTEMPTS LEFT: [][][][][]",
-		"",
 	}
+
 	terminal.Header.Position.Start.Y = terminal.Settings.HeaderPaddingTopY
 	terminal.Header.Position.Start.X = terminal.Settings.GeneralPaddingX
+	terminal.Header.Position.End.Y = terminal.Settings.HeaderPaddingTopY + 4
+	terminal.Header.Position.End.X = terminal.Settings.GeneralPaddingX + len(headerLines[:1])
+
 	for i, line := range headerLines {
 		myLine := SimpleLine{
 			Content: line,
 			Position: MultiCoordinates{
 				Start: SimpleCoordinates{
 					X: terminal.Header.Position.Start.X,
+					Y: terminal.Header.Position.Start.Y + i,
+				},
+				End: SimpleCoordinates{
+					X: terminal.Header.Position.Start.X + len(line),
 					Y: terminal.Header.Position.Start.Y + i,
 				},
 			},
@@ -114,5 +127,13 @@ func NewTerminal(settings TerminalSettings) Terminal {
 		terminal.MemoryBlocks[column] = MemoryBlock
 	}
 	terminal.MemoryBlocks = GenerateMemoryBlock(terminal, terminal.Passwords.Listing)
+
+	terminal.Cursor = Cursor{}
+	terminal.Cursor.Init()
+	// Initalize the attempt box
+	// terminal.attemptBox = AttemptBox{}
+
+	// termial.attemptBox.Init()
+
 	return terminal
 }
