@@ -1,6 +1,7 @@
 package vaultTec
 
 import (
+	"embed"
 	"fmt"
 
 	"github.com/oxide-one/systemd.go/pkg/clear"
@@ -16,6 +17,23 @@ import (
 // echo -e -n "\x1b[\x34 q" # changes to steady underline
 // echo -e -n "\x1b[\x35 q" # changes to blinking bar
 // echo -e -n "\x1b[\x36 q" # changes to steady bar
+
+//go:embed wordlist
+var wordList embed.FS
+
+type MemoryBlock struct {
+	value  string
+	startX int
+	endX   int
+	startY int
+}
+
+type passStruct struct {
+	password   string
+	correct    bool
+	length     int
+	similarity int
+}
 
 func EarlyBoot() {
 	clear.ClearTTY()
