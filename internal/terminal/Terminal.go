@@ -19,12 +19,6 @@ type Terminal struct {
 
 	// A and dict list of Passwords
 	Passwords PassStruct
-
-	// The attempts box
-	AttemptBox
-
-	// The cursor
-	Cursor
 }
 
 func DefaultSettings() TerminalSettings {
@@ -41,6 +35,8 @@ func DefaultSettings() TerminalSettings {
 
 		MemoryWidth:    32,
 		MemoryPaddingX: 4,
+
+		TotalAttempts: 5,
 	}
 	return settings
 }
@@ -63,7 +59,7 @@ func NewTerminal(settings TerminalSettings) Terminal {
 		"OKAMIDASH INDUSTRIES (TM) TERMLINK PROTOCOL",
 		"ENTER PASSWORD NOW",
 		"",
-		"4 ATTEMPTS LEFT: [][][][][]",
+		"",
 	}
 
 	terminal.Header.Position.Start.Y = terminal.Settings.HeaderPaddingTopY
@@ -127,13 +123,6 @@ func NewTerminal(settings TerminalSettings) Terminal {
 		terminal.MemoryBlocks[column] = MemoryBlock
 	}
 	terminal.MemoryBlocks = GenerateMemoryBlock(terminal, terminal.Passwords.Listing)
-
-	terminal.Cursor = Cursor{}
-	terminal.Cursor.Init()
-	// Initalize the attempt box
-	// terminal.attemptBox = AttemptBox{}
-
-	// termial.attemptBox.Init()
 
 	return terminal
 }

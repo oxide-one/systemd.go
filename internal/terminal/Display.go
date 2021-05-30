@@ -85,15 +85,22 @@ func Display(terminal Terminal) {
 	}
 
 	s.SetStyle(terminal.Style.Default)
+	encoding.Register()
+	// Init the Cursor
 	cursor := Cursor{}
 	cursor.Init(terminal)
-	encoding.Register()
-
+	// Init the AttemptBox
+	attemptBox := AttemptBox{}
+	attemptBox.Init(terminal)
+	// Init the InputBox
+	inputBox := InputBox{}
+	inputBox.Init(terminal)
 	for {
 		switch ev := s.PollEvent().(type) {
 		case *tcell.EventResize:
 			s.Sync()
 			displayHeader(terminal, s)
+			attemptBox.flash(terminal, s)
 			displayBlocks(terminal, s)
 			cursor.display(terminal, s, true)
 		case *tcell.EventKey:
@@ -106,14 +113,17 @@ func Display(terminal Terminal) {
 			switch ev.Key() {
 
 			case tcell.KeyUp:
-				terminal.Cursor.moveUp(terminal, s)
+				cursor.moveUp(terminal, s)
 			case tcell.KeyDown:
-				terminal.Cursor.moveDown(terminal, s)
+				cursor.moveDown(terminal, s)
 			case tcell.KeyRight:
-				terminal.Cursor.moveRight(terminal, s)
+				cursor.moveRight(terminal, s)
 			case tcell.KeyLeft:
-				terminal.Cursor.moveLeft(terminal, s)
+				cursor.moveLeft(terminal, s)
 			case tcell.KeyEnter:
+				//attemptBox.flash(terminal, s)
+				//attemptBox.RemainingAttempts -= 1
+				//attemptBox.flash(terminal, s)
 
 				//terminal.attemptBox.flash(termi)
 			}
@@ -121,7 +131,7 @@ func Display(terminal Terminal) {
 			//emitStr(s, 70, 0, defStyle, fmt.Sprintf("LINE: %d, LINEPOS: %d, CURXSTART: %d, CURXEND %d, CURY %d, FINALX %d, FINALY %d", cursor.line, cursor.linePos, cursor.curXStart, cursor.curXEnd, cursor.curY, cursor.finalX, cursor.finalY))
 			//emitStr(s, 0, 0, defStyle, "")
 			//refreshSelection(s, terminal, true)
-
+			inputBox.flash(terminal, s, cursor.Cell)
 		}
 	}
 
