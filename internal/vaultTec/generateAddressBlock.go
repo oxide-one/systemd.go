@@ -7,7 +7,7 @@ import (
 )
 
 // func GeneratePasswordBlock(lineCount int, lineWidth int, columnCount int, passwordCount int, passwords map[string]passStruct, passwordList []string) [][][]string {
-func GenerateAddressBlock(lineCount int, columnCount int) [][]string {
+func GenerateAddressBlock(terminalSettings TerminalSettings) [][]string {
 	// The deviation between the minimum and max is 396, always.
 	const standardDeviation int = 396
 
@@ -22,7 +22,7 @@ func GenerateAddressBlock(lineCount int, columnCount int) [][]string {
 	// Create a checkmap to see if the value already exists
 	chkMap := make(map[int]bool)
 	// Determine the total line count
-	totalLineCount := (lineCount * columnCount) - 2
+	totalLineCount := (terminalSettings.LineCount * terminalSettings.ColumnCount) - 2
 
 	// Create a list of addresses
 	var addrList []int
@@ -43,12 +43,12 @@ func GenerateAddressBlock(lineCount int, columnCount int) [][]string {
 
 	// Create a slice of addresses
 	var addrSlice [][]string
-	for column := 0; column < columnCount; column++ {
+	for column := 0; column < terminalSettings.ColumnCount; column++ {
 		var addrColumn []string
-		for line := 0; line < lineCount; line++ {
+		for line := 0; line < terminalSettings.LineCount; line++ {
 			addrColumn = append(addrColumn, fmt.Sprintf("0xF%0X", addrList[line]))
 		}
-		addrList = addrList[lineCount:]
+		addrList = addrList[terminalSettings.LineCount:]
 		addrSlice = append(addrSlice, addrColumn)
 	}
 

@@ -21,20 +21,6 @@ import (
 //go:embed wordlist
 var wordList embed.FS
 
-type MemoryBlock struct {
-	value  string
-	startX int
-	endX   int
-	startY int
-}
-
-type passStruct struct {
-	password   string
-	correct    bool
-	length     int
-	similarity int
-}
-
 func EarlyBoot() {
 	clear.ClearTTY()
 	fmt.Print(color.BG)

@@ -6,10 +6,10 @@ import (
 	"sort"
 )
 
-func GeneratePasswordBlock(lineCount int, lineWidth int, columnCount int, passwordCount int, passwords map[string]passStruct, passwordList []string) [][][]MemoryBlock {
+func GeneratePasswordBlock(terminal Terminal, passwordList []string) [][][]MemoryBlock {
 
 	// List of allowed punctuation
-	var punctuationList string = ",.<>/?@':;~#}]{[+=-_)(*&^%$£\"!0123456789"
+	var punctuationList = []string{",", ",", ".", "<", ">", "/", "?", "@", "'", ":", ";", "~", "#", "}", "]", "{", "[", "+", "=", "-", "_", ")", "(", "*", "&", "^", "%", "$", "\"", "!", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}
 	var punctuationListLen int = len(punctuationList)
 	// List of matched pairs
 	var matches = []string{"{}", "[]", "()", "<>"}
@@ -19,16 +19,16 @@ func GeneratePasswordBlock(lineCount int, lineWidth int, columnCount int, passwo
 	var matchCols []int
 	// Checkmap so we don't get conflicts
 	matchMap := make(map[string]bool)
-	matchCount := rand.Intn(lineCount-10) + 10
+	matchCount := rand.Intn(terminal.Settings.LineCount-10) + 10
 
 	// Iterate through the number of passwords needed
 	for i := 0; i < matchCount; i++ {
 		for {
 			// Generate a random number between 0 and the lineCount
-			lineNo := rand.Intn(lineCount)
+			lineNo := rand.Intn(terminal.Settings.LineCount)
 
 			// Generate a random number between 0 and the columns
-			colNo := rand.Intn(columnCount)
+			colNo := rand.Intn(terminal.Settings.ColumnCount)
 
 			// Generate a 'hash' of sorts to ensure no column and line collissions
 			colLineHash := fmt.Sprintf("%d%d", colNo, lineNo)
@@ -54,13 +54,13 @@ func GeneratePasswordBlock(lineCount int, lineWidth int, columnCount int, passwo
 	passMap := make(map[string]bool)
 
 	// Iterate through the number of passwords needed
-	for i := 0; i < passwordCount; i++ {
+	for i := 0; i < terminal.Settings.PasswordCount; i++ {
 		for {
 			// Generate a random number between 0 and the lineCount
-			lineNo := rand.Intn(lineCount)
+			lineNo := rand.Intn(terminal.Settings.LineCount)
 
 			// Generate a random number between 0 and the columns
-			colNo := rand.Intn(columnCount)
+			colNo := rand.Intn(terminal.Settings.ColumnCount)
 
 			// Generate a 'hash' of sorts to ensure no column and line collissions
 			colLineHash := fmt.Sprintf("%d%d", colNo, lineNo)
@@ -85,9 +85,9 @@ func GeneratePasswordBlock(lineCount int, lineWidth int, columnCount int, passwo
 	sort.Ints(passwordLines)
 
 	var passwordColumns [][][]MemoryBlock
-	for column := 0; column < columnCount; column++ {
+	for column := 0; column < terminal.Settings.ColumnCount; column++ {
 		var passwordLines [][]MemoryBlock
-		for line := 0; line < lineCount; line++ {
+		for line := 0; line < terminal.Settings.LineCount; line++ {
 			// Generate a 'hash' of sorts to ensure no column and line collissions
 			colLineHash := fmt.Sprintf("%d%d", column, line)
 
@@ -95,7 +95,7 @@ func GeneratePasswordBlock(lineCount int, lineWidth int, columnCount int, passwo
 			_, passMapChk := passMap[colLineHash]
 			_, matchMapChk := matchMap[colLineHash]
 
-			lineCharsLeft := lineWidth
+			lineCharsLeft := terminal.Settings.LineWidth
 			var currentBuffer []string
 			if passMapChk {
 				currentBuffer = append(currentBuffer, passwordList[0])
@@ -105,21 +105,21 @@ func GeneratePasswordBlock(lineCount int, lineWidth int, columnCount int, passwo
 			}
 
 			if matchMapChk {
-				currentBuffer = append(currentBuffer)
 				matchIndex := rand.Intn(matchLen)
 				currentBuffer = append(currentBuffer, matches[matchIndex])
-				lineCharsLeft -= 2
+				lineCharsLeft -= len(matches[matchIndex])
 			}
-			// Fill the remaining matches with
+			// Fill the remaining matches with random punctuation
 			for fillChars := lineCharsLeft; fillChars > 0; fillChars-- {
 				puncIndex := rand.Intn(punctuationListLen)
-				currentBuffer = append(currentBuffer, string(punctuationList[puncIndex]))
+				currentBuffer = append(currentBuffer, punctuationList[puncIndex])
 			}
 
 			passwordBlockLine := make([]MemoryBlock, len(currentBuffer))
 			perm := rand.Perm(len(currentBuffer))
 			for i, v := range perm {
-				passwordBlockLine[v].value = currentBuffer[i]
+				passwordBlockLine[v].Value = currentBuffer[i]
+				passwordBlockLine[v].Length = len(currentBuffer[i])
 			}
 			passwordLines = append(passwordLines, passwordBlockLine)
 		}
@@ -129,5 +129,6 @@ func GeneratePasswordBlock(lineCount int, lineWidth int, columnCount int, passwo
 	//fmt.Println(passwordBlockLines)
 
 	//fmt.Println(passwordLines, passwordCols, matchLines, matchCols)
+	fmt.Println(passwordColumns)
 	return passwordColumns
 }

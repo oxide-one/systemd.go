@@ -7,7 +7,7 @@ import (
 	readembedded "github.com/oxide-one/systemd.go/pkg/readEmbedded"
 )
 
-func GeneratePassword(passwordCount int) (map[string]passStruct, []string) {
+func GeneratePassword(passwordCount int) (map[string]PassStruct, []string) {
 	// Grab the embedded Wordlist
 	wordList := readembedded.File(wordList, "wordlist")
 	// Calculate the length of the wordlist
@@ -30,7 +30,7 @@ func GeneratePassword(passwordCount int) (map[string]passStruct, []string) {
 	}
 
 	chosenPassword := passwordList[rand.Intn(passwordCount)]
-	passwords := make(map[string]passStruct)
+	passwords := make(map[string]PassStruct)
 	for _, selectedPassword := range passwordList {
 
 		var correctPassword bool
@@ -40,11 +40,11 @@ func GeneratePassword(passwordCount int) (map[string]passStruct, []string) {
 			correctPassword = false
 		}
 
-		passwords[selectedPassword] = passStruct{
-			password:   selectedPassword,
-			correct:    correctPassword,
-			length:     len(selectedPassword),
-			similarity: calculateSimilarity(chosenPassword, selectedPassword),
+		passwords[selectedPassword] = PassStruct{
+			Password:   selectedPassword,
+			Correct:    correctPassword,
+			Length:     len(selectedPassword),
+			Similarity: calculateSimilarity(chosenPassword, selectedPassword),
 		}
 	}
 	return passwords, passwordList
