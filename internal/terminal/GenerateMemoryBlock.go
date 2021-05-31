@@ -71,7 +71,7 @@ func generatePasswordMatches(lineCount int, columnCount int, passwordCount int, 
 func GenerateMemoryBlock(terminal Terminal, passwordList []string) []Block {
 
 	// List of allowed punctuation
-	var punctuationList = []string{",", ",", ".", "<", ">", "/", "?", "@", "'", ":", ";", "~", "#", "}", "]", "{", "[", "+", "=", "-", "_", ")", "(", "*", "&", "^", "%", "$", "\"", "!", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}
+	var punctuationList = []string{",", ",", ".", "<", ">", "/", "?", "@", "'", ":", ";", "~", "#", "{", "[", "+", "=", "-", "_", "(", "*", "&", "^", "%", "$", "\"", "!", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}
 	var punctuationListLen int = len(punctuationList)
 
 	// List of matched pairs
@@ -108,12 +108,16 @@ func GenerateMemoryBlock(terminal Terminal, passwordList []string) []Block {
 			_, bracketPairCheck := bracketPairMap[colLineHash]
 
 			lineCharsLeft := lineWidth
-			var currentBuffer []string
+			var currentBuffer []String
 
 			// If the current line and column is where a password should be
 			if passwordMapCheck {
+				myPassword := String{
+					Content:    passwordList[0],
+					StringType: "password",
+				}
 				// Append the first password to the buffer
-				currentBuffer = append(currentBuffer, passwordList[0])
+				currentBuffer = append(currentBuffer, myPassword)
 				// Remove the length of that password from the remaining characters left
 				lineCharsLeft -= len(passwordList[0])
 				// Pop the first password from the passwordList
@@ -125,15 +129,32 @@ func GenerateMemoryBlock(terminal Terminal, passwordList []string) []Block {
 			if bracketPairCheck {
 				// Grab a random index of the bracketPairs
 				matchIndex := rand.Intn(bracketPairsLen)
+				matchIndexStart := string(bracketPairs[matchIndex][0])
+				matchIndexEnd := string(bracketPairs[matchIndex][1])
+				// Generate a random rune count
+				runeCount := rand.Intn(4)
+				inbetween := ""
+				for i := 0; i < runeCount; i++ {
+					inbetween += string(punctuationList[rand.Intn(len(punctuationList))])
+				}
+				var fullMatch string = matchIndexStart + inbetween + matchIndexEnd
 				// Append to the current Buffer
-				currentBuffer = append(currentBuffer, bracketPairs[matchIndex])
-				lineCharsLeft -= len(bracketPairs[matchIndex])
+				myMatch := String{
+					Content:    fullMatch,
+					StringType: "match",
+				}
+				currentBuffer = append(currentBuffer, myMatch)
+				lineCharsLeft -= len(fullMatch)
 			}
 
 			// Fill the remaining matches with random punctuation
 			for fillChars := lineCharsLeft; fillChars > 0; fillChars-- {
 				puncIndex := rand.Intn(punctuationListLen)
-				currentBuffer = append(currentBuffer, punctuationList[puncIndex])
+				myPunc := String{
+					Content:    punctuationList[puncIndex],
+					StringType: "punctuation",
+				}
+				currentBuffer = append(currentBuffer, myPunc)
 			}
 
 			// Finally, Randomize the list and populate the StringSet
@@ -150,10 +171,11 @@ func GenerateMemoryBlock(terminal Terminal, passwordList []string) []Block {
 				currentStringInLine := lineInMemoryBlock.Content[i]
 
 				currentString := currentBuffer[v]
-				currentStringLength := len(currentString)
+				currentStringLength := len(currentString.Content)
 
-				currentStringInLine.Content = currentString
+				currentStringInLine.Content = currentString.Content
 				currentStringInLine.Length = currentStringLength
+				currentStringInLine.StringType = currentString.StringType
 
 				if i == 0 {
 					currentStringInLine.Position.Start = lineInMemoryBlock.Position.Start

@@ -15,16 +15,23 @@ var wordList embed.FS
 func calculateSimilarity(chosenPassword string, selectedPassword string) int {
 	// Calculate the similarity of words by the number of shared letters in them
 	// Generate a checkMap to append each rune to
-	chkMap := make(map[rune]bool)
-	for _, char := range chosenPassword {
-		chkMap[char] = true
-	}
-	var matchingLetters int
-	for _, char := range selectedPassword {
-		if _, ok := chkMap[char]; ok {
+	matchingLetters := 0
+	for i, choChar := range chosenPassword {
+		selChar := rune(selectedPassword[i])
+		if choChar == selChar {
 			matchingLetters++
 		}
 	}
+	// chkMap := make(map[rune]bool)
+	// for _, char := range chosenPassword {
+	// 	chkMap[char] = true
+	// }
+	// var matchingLetters int
+	// for _, char := range selectedPassword {
+	// 	if _, ok := chkMap[char]; ok {
+	// 		matchingLetters++
+	// 	}
+	// }
 	return matchingLetters
 }
 
@@ -71,5 +78,6 @@ func GeneratePasswords(passwordCount int) PassStruct {
 			Similarity: calculateSimilarity(chosenPassword, selectedPassword),
 		}
 	}
+	passStruct.CorrectPassword = chosenPassword
 	return passStruct
 }

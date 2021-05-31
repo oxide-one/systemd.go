@@ -82,9 +82,11 @@ type Line struct {
 }
 
 type String struct {
-	Content  string
-	Position MultiCoordinates
-	Length   int
+	Content    string
+	Position   MultiCoordinates
+	Length     int
+	StringType string
+	Attempted  bool
 }
 
 type Password struct {
@@ -95,8 +97,9 @@ type Password struct {
 }
 
 type PassStruct struct {
-	Content map[string]Password
-	Listing []string
+	Content         map[string]Password
+	CorrectPassword string
+	Listing         []string
 }
 
 /*X	0

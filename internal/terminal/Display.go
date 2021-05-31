@@ -8,6 +8,7 @@ import (
 	"github.com/gdamore/tcell/v2/encoding"
 	"github.com/mattn/go-runewidth"
 	"github.com/oxide-one/systemd.go/pkg/clear"
+	"github.com/oxide-one/systemd.go/pkg/sleeper"
 )
 
 func emitStr(s tcell.Screen, x, y int, style tcell.Style, str string) {
@@ -121,16 +122,70 @@ func Display(terminal Terminal) {
 			case tcell.KeyLeft:
 				cursor.moveLeft(terminal, s)
 			case tcell.KeyEnter:
+				if cursor.Cell.Attempted {
+					// var messages = []string{
+					// 	">" + cursor.Cell.Content,
+					// 	">Already Tried",
+					// }
+					// inputBox.addMessage(messages)
+				} else if cursor.Cell.StringType == "password" {
+					if cursor.Cell.Content == terminal.Passwords.CorrectPassword {
+						var messages = []string{
+							">" + cursor.Cell.Content,
+							">Exact match!",
+							">Please wait",
+							">while system",
+							">is accessed.",
+						}
+						inputBox.addMessage(messages)
+						attemptBox.flash(terminal, s)
+						inputBox.flash(terminal, s, cursor.Cell)
+						inputBox.pushList(terminal, s)
+						sleeper.Sleep(3000)
+						s.Fini()
+						os.Exit(0)
+					} else {
+						wrongPassword := cursor.Cell.Content
+						wrongPasswordInfo := terminal.Passwords.Content[wrongPassword]
+						var messages = []string{
+							">" + cursor.Cell.Content,
+							">Entry denied.",
+							fmt.Sprintf(">Likeness=%d/%d", wrongPasswordInfo.Similarity, wrongPasswordInfo.Length),
+						}
+						inputBox.addMessage(messages)
+						attemptBox.RemainingAttempts -= 1
+					}
+
+				} else if cursor.Cell.StringType == "match" {
+					var messages = []string{
+						">" + cursor.Cell.Content,
+						">Allowance",
+						">Replenished.",
+					}
+					attemptBox.RemainingAttempts = attemptBox.TotalAttempts
+					inputBox.addMessage(messages)
+				} else {
+					var messages = []string{
+						">" + cursor.Cell.Content,
+						">Entry denied.",
+						fmt.Sprintf(">Likeness=%d/%d", 0, len(terminal.Passwords.CorrectPassword)),
+					}
+					inputBox.addMessage(messages)
+					attemptBox.RemainingAttempts -= 1
+				}
+				terminal.MemoryBlocks[cursor.ColumnNumber].Content[cursor.LineNumber].Content[cursor.LinePosition].Attempted = true
+				cursor.Cell.Attempted = true
 				//attemptBox.flash(terminal, s)
 				//attemptBox.RemainingAttempts -= 1
 				//attemptBox.flash(terminal, s)
-
+				inputBox.pushList(terminal, s)
 				//terminal.attemptBox.flash(termi)
 			}
 
 			//emitStr(s, 70, 0, defStyle, fmt.Sprintf("LINE: %d, LINEPOS: %d, CURXSTART: %d, CURXEND %d, CURY %d, FINALX %d, FINALY %d", cursor.line, cursor.linePos, cursor.curXStart, cursor.curXEnd, cursor.curY, cursor.finalX, cursor.finalY))
 			//emitStr(s, 0, 0, defStyle, "")
 			//refreshSelection(s, terminal, true)
+			attemptBox.flash(terminal, s)
 			inputBox.flash(terminal, s, cursor.Cell)
 		}
 	}
