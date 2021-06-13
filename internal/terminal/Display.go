@@ -2,7 +2,9 @@ package Terminal
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
+	"strings"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/gdamore/tcell/v2/encoding"
@@ -157,12 +159,35 @@ func Display(terminal Terminal) {
 					}
 
 				} else if cursor.Cell.StringType == "match" {
-					var messages = []string{
-						">" + cursor.Cell.Content,
-						">Allowance",
-						">Replenished.",
+					var messages []string
+					effect := (rand.Intn(2) == 1)
+					// Random choice
+					if effect {
+						messages = []string{
+							">" + cursor.Cell.Content,
+							">Allowance",
+							">Replenished.",
+						}
+						attemptBox.RemainingAttempts = attemptBox.TotalAttempts
+					} else {
+						messages = []string{
+							">" + cursor.Cell.Content,
+							">Dud removed.",
+						}
+						for _, password := range terminal.Passwords.Listing {
+							passwordMap := terminal.Passwords.Content[password]
+							passwordCell := &terminal.MemoryBlocks[passwordMap.Column].Content[passwordMap.Line].Content[passwordMap.LinePosition]
+							if password != terminal.Passwords.CorrectPassword && !passwordCell.Attempted {
+								passwordCell.Attempted = true
+								passwordX := passwordCell.Position.Start.X
+								passwordY := passwordCell.Position.Start.Y
+								passwordLength := passwordCell.Length
+								emitStr(s, passwordX, passwordY, terminal.Style.LowDefault, strings.Repeat(" ", passwordLength))
+								break
+							}
+						}
 					}
-					attemptBox.RemainingAttempts = attemptBox.TotalAttempts
+
 					inputBox.addMessage(messages)
 				} else {
 					var messages = []string{
@@ -175,16 +200,10 @@ func Display(terminal Terminal) {
 				}
 				terminal.MemoryBlocks[cursor.ColumnNumber].Content[cursor.LineNumber].Content[cursor.LinePosition].Attempted = true
 				cursor.Cell.Attempted = true
-				//attemptBox.flash(terminal, s)
-				//attemptBox.RemainingAttempts -= 1
-				//attemptBox.flash(terminal, s)
-				inputBox.pushList(terminal, s)
-				//terminal.attemptBox.flash(termi)
-			}
 
-			//emitStr(s, 70, 0, defStyle, fmt.Sprintf("LINE: %d, LINEPOS: %d, CURXSTART: %d, CURXEND %d, CURY %d, FINALX %d, FINALY %d", cursor.line, cursor.linePos, cursor.curXStart, cursor.curXEnd, cursor.curY, cursor.finalX, cursor.finalY))
-			//emitStr(s, 0, 0, defStyle, "")
-			//refreshSelection(s, terminal, true)
+				inputBox.pushList(terminal, s)
+
+			}
 			attemptBox.flash(terminal, s)
 			inputBox.flash(terminal, s, cursor.Cell)
 		}

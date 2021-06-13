@@ -68,10 +68,10 @@ func generatePasswordMatches(lineCount int, columnCount int, passwordCount int, 
 	return passMap
 }
 
-func GenerateMemoryBlock(terminal Terminal, passwordList []string) []Block {
-
+func GenerateMemoryBlock(terminal Terminal, passStruct PassStruct) ([]Block, PassStruct) {
+	passwordList := passStruct.Listing
 	// List of allowed punctuation
-	var punctuationList = []string{",", ",", ".", "<", ">", "/", "?", "@", "'", ":", ";", "~", "#", "{", "[", "+", "=", "-", "_", "(", "*", "&", "^", "%", "$", "\"", "!", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}
+	var punctuationList = []string{",", ",", ".", "/", "?", "@", "'", ":", ";", "~", "#", "{", "[", "+", "=", "-", "_", "(", "*", "&", "^", "%", "$", "\"", "!", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}
 	var punctuationListLen int = len(punctuationList)
 
 	// List of matched pairs
@@ -177,6 +177,15 @@ func GenerateMemoryBlock(terminal Terminal, passwordList []string) []Block {
 				currentStringInLine.Length = currentStringLength
 				currentStringInLine.StringType = currentString.StringType
 
+				// Set line, position and line position
+				if currentString.StringType == "password" {
+					currentPass := passStruct.Content[currentString.Content]
+					currentPass.Column = column
+					currentPass.Line = line
+					currentPass.LinePosition = i
+					passStruct.Content[currentPass.Content] = currentPass
+				}
+
 				if i == 0 {
 					currentStringInLine.Position.Start = lineInMemoryBlock.Position.Start
 				} else {
@@ -212,5 +221,5 @@ func GenerateMemoryBlock(terminal Terminal, passwordList []string) []Block {
 
 	//fmt.Println(passwordLines, passwordCols, matchLines, matchCols)
 	//fmt.Printf("%+v", memoryBlocks[0].Content[1].Content)
-	return memoryBlocks
+	return memoryBlocks, passStruct
 }

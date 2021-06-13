@@ -51,8 +51,10 @@ func NewTerminal(settings TerminalSettings) Terminal {
 
 	// Construct the style
 	terminal.Style = TerminalStyle{
-		Default:   tcell.StyleDefault.Foreground(tcell.ColorGreen.TrueColor()).Background(tcell.ColorBlack.TrueColor()).Bold(true),
-		Highlight: tcell.StyleDefault.Foreground(tcell.ColorWhite.TrueColor()).Background(tcell.ColorGreen.TrueColor()).Bold(true),
+		Default:      tcell.StyleDefault.Foreground(tcell.ColorGreen.TrueColor()).Background(tcell.ColorBlack.TrueColor()).Bold(true),
+		Highlight:    tcell.StyleDefault.Foreground(tcell.ColorWhite.TrueColor()).Background(tcell.ColorGreen.TrueColor()).Bold(true),
+		LowDefault:   tcell.StyleDefault.Foreground(tcell.ColorDarkGreen.TrueColor()).Background(tcell.ColorBlack.TrueColor()),
+		LowHighlight: tcell.StyleDefault.Foreground(tcell.ColorWhite.TrueColor()).Background(tcell.ColorDarkGreen.TrueColor()),
 	}
 	// Construct the Header
 	headerLines := []string{
@@ -122,7 +124,7 @@ func NewTerminal(settings TerminalSettings) Terminal {
 		// Save back the information
 		terminal.MemoryBlocks[column] = MemoryBlock
 	}
-	terminal.MemoryBlocks = GenerateMemoryBlock(terminal, terminal.Passwords.Listing)
+	terminal.MemoryBlocks, terminal.Passwords = GenerateMemoryBlock(terminal, terminal.Passwords)
 
 	return terminal
 }

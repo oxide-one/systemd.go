@@ -30,7 +30,12 @@ func (i *InputBox) flash(t Terminal, s tcell.Screen, cell String) {
 	emitStr(s, i.Position.X, i.Position.Y, t.Style.Default, emptyBoxes)
 
 	// Compile the current string
-	fullString := fmt.Sprintf("> %s", cell.Content)
+	var fullString string
+	// if cell.Attempted {
+	// 	fullString = fmt.Sprintf("> %s", "Already Attempted.")
+	// } else {
+	fullString = fmt.Sprintf("> %s", cell.Content)
+	//}
 	emitStr(s, i.Position.X, i.Position.Y, t.Style.Default, fullString)
 	i.LastLength = len(fullString)
 }

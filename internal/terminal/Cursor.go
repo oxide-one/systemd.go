@@ -1,6 +1,10 @@
 package Terminal
 
-import "github.com/gdamore/tcell/v2"
+import (
+	"strings"
+
+	"github.com/gdamore/tcell/v2"
+)
 
 type Cursor struct {
 	// The current lolumn
@@ -17,11 +21,27 @@ type Cursor struct {
 
 // Sets the display value of the current position
 func (c *Cursor) display(t Terminal, s tcell.Screen, highlight bool) {
+	// If we want to highlight the string
+	var style tcell.Style
 	if highlight {
-		emitStr(s, c.Cell.Position.Start.X, c.Cell.Position.Start.Y, t.Style.Highlight, c.Cell.Content)
+		style = t.Style.Highlight
 	} else {
-		emitStr(s, c.Cell.Position.Start.X, c.Cell.Position.Start.Y, t.Style.Default, c.Cell.Content)
+		style = t.Style.Default
 	}
+	// If the cell has been attempted
+	var content string
+	if c.Cell.Attempted {
+		content = strings.Repeat(" ", len(c.Cell.Content))
+		if highlight {
+			style = t.Style.LowHighlight
+		} else {
+			style = t.Style.LowDefault
+		}
+	} else {
+		content = c.Cell.Content
+
+	}
+	emitStr(s, c.Cell.Position.Start.X, c.Cell.Position.Start.Y, style, content)
 }
 
 // Flashes the current position blank, changes position, then flashes bright

@@ -17,8 +17,10 @@ type MultiCoordinates struct {
 }
 
 type TerminalStyle struct {
-	Default   tcell.Style
-	Highlight tcell.Style
+	Default      tcell.Style
+	Highlight    tcell.Style
+	LowDefault   tcell.Style
+	LowHighlight tcell.Style
 }
 
 // Settings for the terminal window
@@ -94,6 +96,10 @@ type Password struct {
 	Correct    bool
 	Length     int
 	Similarity int
+
+	Line         int
+	LinePosition int
+	Column       int
 }
 
 type PassStruct struct {
