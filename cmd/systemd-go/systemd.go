@@ -1,4 +1,4 @@
-package systemd
+package main
 
 import (
 	"embed"
@@ -11,10 +11,10 @@ import (
 	readembedded "github.com/oxide-one/systemd.go/pkg/readEmbedded"
 )
 
-//go:embed ./..//assets/hooks
+//go:embed assets/hooks
 var myHooks embed.FS
 
-//go:embed ./assets/units
+//go:embed assets/units
 var myUnits embed.FS
 
 type secondParts struct {
@@ -39,6 +39,10 @@ func readEmbeddedFile(fileObj embed.FS, path string) []string {
 	}
 	strArr := strings.Split(string(byteArr), "\n")
 	return strArr
+}
+
+func main() {
+    systemdRun()
 }
 
 func systemdRun() {
